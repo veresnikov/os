@@ -3,9 +3,10 @@ package converter
 import (
 	"encoding/csv"
 	"fmt"
+	"os"
+
 	"github.com/veresnikov/statemachines/pkg/logger"
 	"github.com/veresnikov/statemachines/pkg/machine"
-	"os"
 )
 
 type writer struct {
@@ -71,9 +72,7 @@ func (w *writer) convertMooreMachineToCsv(idxMooreMachine map[string]*machine.Mo
 	}
 
 	data = append(data, signals, states)
-	for _, transition := range finalTransitions {
-		data = append(data, transition)
-	}
+	data = append(data, finalTransitions...)
 	return data
 }
 
@@ -125,8 +124,6 @@ func (w *writer) convertMealyMachineToCsv(idxMealyMachine map[string]*machine.Me
 	}
 
 	data = append(data, states)
-	for _, transition := range finalTransitions {
-		data = append(data, transition)
-	}
+	data = append(data, finalTransitions...)
 	return data
 }

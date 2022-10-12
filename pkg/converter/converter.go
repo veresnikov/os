@@ -70,7 +70,7 @@ func (c *converter) fillMooreTransitions(
 	filledTransitions := make(map[string][]string)
 	for _, mealyState := range idxMealyStates {
 		for _, transition := range mealyState.Transitions {
-			for input, _ := range mealyState.Transitions {
+			for input := range mealyState.Transitions {
 				currentStateName := transition.State.Name + "/" + transition.Signal
 				currentMooreState := idxMooreStates[currentStateName]
 

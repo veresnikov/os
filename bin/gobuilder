@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+BUILDER_IMAGE=veresnikov/go-builder:1.0.0
+
+echo "pulling $BUILDER_IMAGE..."
+docker pull "$BUILDER_IMAGE" > /dev/null
+
+USER_ID=$(id -u)
+SSH_DIR=$HOME/.ssh
+CACHE_DIR=$HOME/.cache
+docker run \
+  --interactive \
+  --tty \
+  --user "$USER_ID" \
+  --volume "/etc/passwd:/etc/passwd:ro" \
+  --volume "/etc/group:/etc/group:ro" \
+  --volume "$SSH_DIR:$SSH_DIR" \
+  --volume "$CACHE_DIR:$CACHE_DIR" \
+  --volume "$PWD:$PWD" \
+  --workdir "$PWD" \
+  "$BUILDER_IMAGE" \
+  "$@"
