@@ -79,3 +79,52 @@ func (p *parser) fillMealyTransitions(idxState map[string]*machine.MealyState, s
 	}
 	p.log.Info("complete fill")
 }
+
+func (p *parser) ParseMoore(path string) (map[string]*machine.MooreState, []*machine.MooreState, error) {
+	p.log.Info(fmt.Sprintf("start parsing %v", path))
+	data, err := p.readFile(path)
+	if err != nil {
+		return nil, nil, err
+	}
+	p.log.Info("complete parsing")
+
+	idxStates, states := p.getMooreStates(data)
+	p.fillMooreTransitions(idxStates, states, data)
+	return idxStates, states, nil
+}
+
+func (p *parser) getMooreStates(data [][]string) (map[string]*machine.MooreState, []*machine.MooreState) {
+	p.log.Info("parsing moore states...")
+	idxStates := make(map[string]*machine.MooreState)
+	states := make([]*machine.MooreState, 0)
+	for i := 0; i < len(data[0]); i++ {
+		signal := data[0][i]
+		stateName := data[1][i]
+		if signal == "" {
+			continue
+		}
+		state := &machine.MooreState{
+			Name:        stateName,
+			Signal:      signal,
+			Transitions: make(map[string]machine.MooreTransition),
+		}
+		idxStates[stateName] = state
+		states = append(states, state)
+	}
+	p.log.Info(fmt.Sprintf("complete parsing: parsed %v states", len(states)))
+	return idxStates, states
+}
+
+func (p *parser) fillMooreTransitions(idxState map[string]*machine.MooreState, states []*machine.MooreState, data [][]string) {
+	p.log.Info("fill moore states transitions...")
+	for i := 2; i < len(data); i++ {
+		input := data[i][0]
+		for n := 1; n < len(data[i]); n++ {
+			state := states[n-1]
+			state.Transitions[input] = machine.MooreTransition{
+				State: idxState[data[i][n]],
+			}
+		}
+	}
+	p.log.Info("complete fill")
+}

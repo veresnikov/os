@@ -2,7 +2,6 @@ package converter
 
 import (
 	"context"
-	stderr "errors"
 	"fmt"
 
 	"github.com/veresnikov/statemachines/pkg/logger"
@@ -95,7 +94,47 @@ func (c *converter) fillMooreTransitions(
 }
 
 func (c *converter) MooreToMealy(_ context.Context, input, output string) error {
-	return c.log.Error(stderr.New("not implemented"))
+	idxMooreStates, mooreStates, err := c.parser.ParseMoore(input)
+	if err != nil {
+		return err
+	}
+	idxMealyStates, _ := c.generateMealyStatesFormMooreStates(mooreStates)
+	c.fillMealyTransitions(idxMooreStates, idxMealyStates)
+	return c.writer.WriteMealyStatemachine(output, idxMealyStates)
+}
+
+func (c *converter) generateMealyStatesFormMooreStates(
+	mooreStates []*machine.MooreState,
+) (map[string]*machine.MealyState, []*machine.MealyState) {
+	c.log.Info("generating mealy states...")
+	idxMealyStates := make(map[string]*machine.MealyState)
+	mealyStates := make([]*machine.MealyState, 0)
+	for _, mooreState := range mooreStates {
+		mealyState := &machine.MealyState{
+			Name:        mooreState.Name,
+			Transitions: make(map[string]machine.MealyTransition),
+		}
+		idxMealyStates[mooreState.Name] = mealyState
+		mealyStates = append(mealyStates, mealyState)
+	}
+	c.log.Info(fmt.Sprintf("complete generating: generated %v states", len(mealyStates)))
+	return idxMealyStates, mealyStates
+}
+
+func (c *converter) fillMealyTransitions(
+	idxMooreStates map[string]*machine.MooreState,
+	idxMealyStates map[string]*machine.MealyState,
+) {
+	for _, mealyState := range idxMealyStates {
+		mooreState := idxMooreStates[mealyState.Name]
+		for input, transition := range mooreState.Transitions {
+			nextMooreState := transition.State
+			mealyState.Transitions[input] = machine.MealyTransition{
+				Signal: nextMooreState.Signal,
+				State:  idxMealyStates[nextMooreState.Name],
+			}
+		}
+	}
 }
 
 func isTransitionExist(filledTransitions map[string][]string, src, dst string) bool {

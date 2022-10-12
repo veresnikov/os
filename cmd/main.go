@@ -52,8 +52,16 @@ func runApp(ctx context.Context, args []string) error {
 				},
 			},
 			{
-				Name:  "moore-to-mealy",
-				Usage: "Convert state machine moore to mealy",
+				Name:      "moore-to-mealy",
+				Usage:     "Convert state machine moore to mealy",
+				ArgsUsage: "input.csv output.csv",
+				Action: func(c *cli.Context) error {
+					if len(args) != 4 {
+						return stderr.New("arguments input/output not found")
+					}
+					conv := converter.NewConverter(applog)
+					return conv.MooreToMealy(c.Context, args[2], args[3])
+				},
 			},
 		},
 	}
