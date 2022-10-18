@@ -5,6 +5,7 @@ import "github.com/sirupsen/logrus"
 type Logger interface {
 	Info(message string)
 	Error(err error) error
+	Warn(err error)
 	Object(message string, object interface{})
 }
 
@@ -26,6 +27,10 @@ func (l *logger) Error(err error) error {
 	}
 	l.log.Error(err)
 	return err
+}
+
+func (l *logger) Warn(err error) {
+	l.log.Warn(err)
 }
 
 func (l *logger) Object(message string, object interface{}) {
