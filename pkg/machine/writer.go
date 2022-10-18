@@ -1,4 +1,4 @@
-package converter
+package machine
 
 import (
 	"encoding/csv"
@@ -6,41 +6,40 @@ import (
 	"os"
 
 	"github.com/veresnikov/statemachines/pkg/logger"
-	"github.com/veresnikov/statemachines/pkg/machine"
 )
 
-type writer struct {
-	log logger.Logger
+type Writer struct {
+	Log logger.Logger
 }
 
-func (w *writer) WriteMooreStatemachine(output string, mooreMachine map[string]*machine.MooreState) error {
+func (w *Writer) WriteMooreStatemachine(output string, mooreMachine map[string]*MooreState) error {
 	outputFile, err := w.createFile(output)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		_ = w.log.Error(outputFile.Close())
+		_ = w.Log.Error(outputFile.Close())
 	}()
 	csvwriter := csv.NewWriter(outputFile)
 	csvwriter.Comma = ';'
 	data := w.convertMooreMachineToCsv(mooreMachine)
 	err = csvwriter.WriteAll(data)
 	if err != nil {
-		return w.log.Error(err)
+		return w.Log.Error(err)
 	}
 	return nil
 }
 
-func (w *writer) createFile(path string) (*os.File, error) {
-	w.log.Info(fmt.Sprintf("create file %v", path))
+func (w *Writer) createFile(path string) (*os.File, error) {
+	w.Log.Info(fmt.Sprintf("create file %v", path))
 	output, err := os.Create(path)
 	if err != nil {
-		return nil, w.log.Error(err)
+		return nil, w.Log.Error(err)
 	}
 	return output, nil
 }
 
-func (w *writer) convertMooreMachineToCsv(idxMooreMachine map[string]*machine.MooreState) [][]string {
+func (w *Writer) convertMooreMachineToCsv(idxMooreMachine map[string]*MooreState) [][]string {
 	data := make([][]string, 0)
 
 	signals := []string{""}
@@ -76,25 +75,25 @@ func (w *writer) convertMooreMachineToCsv(idxMooreMachine map[string]*machine.Mo
 	return data
 }
 
-func (w *writer) WriteMealyStatemachine(output string, mealyMachine map[string]*machine.MealyState) error {
+func (w *Writer) WriteMealyStatemachine(output string, mealyMachine map[string]*MealyState) error {
 	outputFile, err := w.createFile(output)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		_ = w.log.Error(outputFile.Close())
+		_ = w.Log.Error(outputFile.Close())
 	}()
 	csvwriter := csv.NewWriter(outputFile)
 	csvwriter.Comma = ';'
 	data := w.convertMealyMachineToCsv(mealyMachine)
 	err = csvwriter.WriteAll(data)
 	if err != nil {
-		return w.log.Error(err)
+		return w.Log.Error(err)
 	}
 	return nil
 }
 
-func (w *writer) convertMealyMachineToCsv(idxMealyMachine map[string]*machine.MealyState) [][]string {
+func (w *Writer) convertMealyMachineToCsv(idxMealyMachine map[string]*MealyState) [][]string {
 	data := make([][]string, 0)
 
 	states := []string{""}

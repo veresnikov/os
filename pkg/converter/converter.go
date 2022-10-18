@@ -16,15 +16,15 @@ type Converter interface {
 func NewConverter(log logger.Logger) Converter {
 	return &converter{
 		log:    log,
-		parser: parser{log: log},
-		writer: writer{log: log},
+		parser: machine.Parser{Log: log},
+		writer: machine.Writer{Log: log},
 	}
 }
 
 type converter struct {
 	log    logger.Logger
-	parser parser
-	writer writer
+	parser machine.Parser
+	writer machine.Writer
 }
 
 func (c *converter) MealyToMoore(_ context.Context, input, output string) error {

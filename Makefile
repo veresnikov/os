@@ -1,10 +1,8 @@
-export APP_CMD_NAME = statemachines
-
 all: build test check
 
 .PHONY: build
 build: modules
-	bin/go-build "cmd" "bin/$(APP_CMD_NAME)" $(APP_CMD_NAME)
+	bin/go-build "cmd" "bin/converter" converter
 
 .PHONY: modules
 modules:

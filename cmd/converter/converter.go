@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	appID = "statemachines"
+	appID = "converter"
 )
 
 func main() {
